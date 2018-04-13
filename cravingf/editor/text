@@ -1,0 +1,14 @@
+php : "application/x-httpd-php"
+python : "x-python"
+html : "application/x-httpd-php"
+perl : "x-perl"
+ruby : "x-ruby"
+javascript : "javascript"
+haskell : x-haskell
+java  : text/x-java
+c/c++ : text/x-c++src
+cs    : text/x-csharp
+vb    :
+r     : text/x-rsrc
+sql   :
+objc : text/x-objectivec

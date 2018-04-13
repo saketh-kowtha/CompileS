@@ -1,0 +1,475 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+<title>CompileS</title>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta author = "saketh">
+<link href="layout/styles/layout.css" rel="stylesheet" type="text/css" media="all">
+<script>
+  if(localStorage.getItem("username")){
+    window.location.href = "editor/another.html"
+  }
+</script>
+<style>
+.popup {
+  display: none;
+  position: fixed;
+  padding: 10px;
+  width: 280px;
+  left: 50%;
+  margin-left: -150px;
+  height: 180px;
+  top: 50%;
+  margin-top: -100px;
+  z-index: 20;
+  color: #8096AA;
+}
+/*toast*/
+
+#snackbar {
+    visibility: hidden;
+    min-width: 300px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 20px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+}
+
+#snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+-@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+#popup2::after,#popup3::after {
+  position: fixed;
+  content: "";
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(0,0,0,0);
+  z-index: -2;
+  color:#8096AA;
+}
+
+
+
+#submit {
+    background-color: #8096AA;
+    color: white;
+    padding: 8px 80px;
+    margin-left: 30px;
+    border: none;
+    cursor: pointer;
+   
+}
+
+#submit2 {
+    background-color: #8096AA;
+    color: white;
+    padding: 8px 80px;
+    border: none;
+    cursor: pointer;
+    margin-left: 30px;
+}
+
+
+.fpwd
+{
+  margin-left: 70px;
+}
+</style>
+
+<script>
+var show = function(id) {
+  document.getElementById(id).style.display ='block';
+}
+var hide = function(id) {
+  document.getElementById(id).style.display ='none';
+}
+
+function myFunction() {
+    var x = document.getElementById("snackbar")
+    x.className = "show";
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+function valid(x)
+{
+    function isJson(str) {
+      try {
+          JSON.parse(str);
+      } catch (e) {
+          return false;
+      }
+      return true;
+    }
+    function validate(type){
+      var a_r = /[A-Z a-z].{2,}/
+      var e_r = /[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$/
+      var p_r = /.{6,}/
+      if(type == "register"){
+        var a = document.getElementById("fname").value
+        var b = document.getElementById("lname").value
+        var c = document.getElementById("email").value
+        var d = document.getElementById("pwd1").value
+        if(!a_r.test(a)){
+          document.getElementById("snackbar").innerHTML = "Enter First Name in valid format"
+          myFunction()
+          return false
+        }
+        else if(!a_r.test(b)){
+          document.getElementById("snackbar").innerHTML = "Enter Last Name in valid format"
+          myFunction()
+          return false
+        }
+        else if(!e_r.test(c)){
+          document.getElementById("snackbar").innerHTML = "Enter Email in valid format"
+          myFunction()
+          return false
+        }
+        else if(!p_r.test(d)){
+          document.getElementById("snackbar").innerHTML = "Enter Password in valid format"
+          myFunction()
+          return false
+        }
+        else{
+          return true          
+        }
+      }
+      else{
+        var a = document.getElementById("uname").value
+        var b = document.getElementById("pwd").value
+        if(!a_r.test(a)){
+          document.getElementById("snackbar").innerHTML = "Enter User Name in valid format"
+          myFunction()
+          return false
+        }
+        else if(!p_r.test(b)){
+          document.getElementById("snackbar").innerHTML = "Enter Password in valid format"
+          myFunction()
+          return false
+        }
+        else{
+          return true
+        }
+      }
+    }
+    var url = "localhost"
+    var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                       console.log(isJson(this.responseText) ? JSON.parse(this.responseText) : this.responseText)
+                       if(this.responseText == ""){
+                         document.getElementById("snackbar").innerHTML = "Invalid username or password"
+                       }
+                       else if(JSON.parse(this.responseText).email){
+                         window.location.href = "editor/another.html"
+                         localStorage.setItem("username",JSON.parse(this.responseText).email)
+                       }
+                      else if(JSON.parse(this.responseText).op == 1){
+                        document.getElementById("snackbar").innerHTML = "Registered Successfully"                        
+                      }
+                      else{
+                        document.getElementById("snackbar").innerHTML = "Something Wrong"                        
+                      }
+                      myFunction()
+                };
+              }
+                xhttp.open("POST", "http://" + url + ":3000/"+((x=='register')?"register" :"login"), true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                if(x=='register' && validate('register'))
+                {
+                  xhttp.send("firstname="+document.getElementById('fname').value+"&lastname="+document.getElementById('lname').value+"&email="+document.getElementById('email').value+"&pwd="+document.getElementById('pwd1').value);
+                }
+                  else if(x == 'login' && validate('login'))
+              {
+                 xhttp.send("email="+document.getElementById('uname').value+"&pwd="+document.getElementById('pwd').value);
+              }
+
+}
+
+function forgetpswd(){
+  var url = "localhost"
+    var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+                       console.log(this.responseText)
+                       document.getElementById("snackbar").innerHTML = this.responseText
+                       myFunction()                       
+
+                };
+              }
+                xhttp.open("POST", "http://" + url + ":3000/forget", true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+
+                 xhttp.send("email="+document.getElementById('uname').value);
+
+}
+    
+
+
+
+</script>
+</head>
+
+
+
+<body id="top">
+<!-- ################################################################################################ -->
+<!-- ################################################################################################ -->
+<!-- ################################################################################################ -->
+
+
+<div class="wrapper row0">
+  <div id="topbar" class="clear"> 
+    <!-- ################################################################################################ -->
+    
+    <div class="fl_right">
+      <ul class="nospace inline pushright">
+        <li><a href="#"  onclick="show('popup2')">Login</a></li>
+        
+        <li><a href="#" onclick="show('popup3')">Register</a></li>
+      </ul>
+    </div>
+
+    <!-- ################################################################################################ -->
+  </div>
+</div>
+<!-- ############################################################################################### -->
+<!-- ################################################################################################ -->
+<!-- ################################################################################################ -->
+<div class="wrapper row1">
+  <header id="header" class="clear"> 
+    <!-- ################################################################################################ -->
+    <div id="logo" class="fl_left">
+      <a href="index.html"><h1>Craving</h1></a>
+    </div>
+    <div class="fl_right">
+      <ul class="nospace inline pushright">
+      <h6> Strong desire for <i>PROGRAMMING</i></h6>
+      </ul>
+    </div>
+    <!-- ################################################################################################ -->
+  </header>
+</div>
+<!-- ################################################################################################ -->
+<!-- ################################################################################################ -->
+<!-- ################################################################################################ -->
+<div class="wrapper row1 bgded" style="background-image:url('images/demo/backgrounds/03.jpg')">
+  <div class="overlay">
+    <section id="pageintro" class="clear"> 
+      <!-- ################################################################################################ -->
+      <div class="one_half first">
+        <h2 class="font-x3 btmspace-50">Collecting different platforms together.</h2>
+        <p>It really makes sense to love what we do! Whether our career or something more personal is what we find most passionate in our lives, it is always a great idea to check in once in a while and remind ourselves what drives this passion.</p>
+        <p><a class="btn" href="editor\another.html" target="_blank">CLICK HERE</a></p>
+      </div>
+      <div class="one_half"><img src="images/demo/pgmgminds.png" alt=""></div>
+      <!-- ################################################################################################ -->
+    </section>
+  </div>
+</div>
+<!-- ################################################################################################ -->
+<!-- ################################################################################################ -->
+<!-- ################################################################################################ -->
+<div class="wrapper row2">
+  <nav id="mainav" class="clear"> 
+    <!-- ################################################################################################ -->
+    <ul class="clear">
+      
+       <li><a href="https://www.completecsharptutorial.com/basic" target="_blank">C#</a></li>
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+       <li><a href="http://www.studytonight.com/java" target="_blank">Java</a></li>
+       &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <li><a href="https://www.w3schools.com/html/default.asp" target="_blank">HTML</a></li>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <li><a href="https://www.codecademy.com/en/tracks/javascript" target="_blank">JavaScript</a></li>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <li><a href="https://www.w3schools.com/php" target="_blank">PHP</a></li>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <li><a href="https://learn.perl.org/tutorials" target="_blank">Perl</a></li>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <li><a href="https://www.ruby-lang.org/en/documentation/quickstart" target="_blank">Ruby</a></li>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;      
+      <li><a href="http://www.learnpython.org" target="_blank">Python</a></li>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+      <li><a href="http://www.mysqltutorial.org" target="_blank">MYSQL</a></li>
+      
+    </ul>
+  </nav>
+</div>
+
+<div class="wrapper row3">
+  <main class="container clear"> 
+
+    <div class="center btmspace-80">
+      <h2>Basic programming languages you should know</h2>
+      <p>“The most important property of a program is whether it accomplishes the intention of its user.”</p>
+    </div>
+    <div class="group">
+      <article class="one_third first btmspace-50">
+        <h2 class="uppercase font-x1 btmspace-30"><a href="#">C,C++</a></h2>
+        <p>Being the oldest, it should be learned first when you start up, and it is mainly applied in forming different software.C++ is a bit more progressive than C, and utilized immensely in forming hardware speeded games.Known to be the strongest language, C++ is applied in vital operating systems, such as Windows.</p>
+      </article>
+      <article class="one_third btmspace-50">
+        <h2 class="uppercase font-x1 btmspace-30"><a href="#">Java</a></h2>
+        <p>Java is considered as the perfect language for the developers and programmers to learn. Currently, it is the top-most programming language and has grabbed the highest position with Android OS.</p>
+      </article>
+      <article class="one_third btmspace-50">
+        <h2 class="uppercase font-x1 btmspace-30"><a href="#">JavaScript</a></h2>
+        <p>JavaScript is extremely functional as this language can immensely assist you in generating the communication for your website. You can utilize various in style frameworks in JavaScript for constructing the superb user interface.</p>
+      </article>
+      <article class="one_third first">
+        <h2 class="uppercase font-x1 btmspace-30"><a href="#">Perl</a></h2>
+        <p>Perl is also a well-accepted programming language that offers distinct tools for various obscure setbacks such as system programming. Though this programming language is a bit puzzling.</p>
+      </article>
+      <article class="one_third">
+        <h2 class="uppercase font-x1 btmspace-30"><a href="#">C#</a></h2>
+        <p> you can go ahead in knowing about C# language.C# is actually the prime language for Microsoft applications and services. While executing with .Net and ASP technologies, you are required to be familiar with the C# accurately.</p>
+      </article>
+      <article class="one_third">
+        <h2 class="uppercase font-x1 btmspace-30"><a href="#">Python</a></h2>
+        <p>For becoming skilled at all-in-one language, you should begin learning Python language that has the ability to expand web apps, data analysis, user interfaces, and much more, and frameworks are also available for these tasks.</p>
+      </article>
+     </div>
+    <!-- ################################################################################################ -->
+    <!-- / main body -->
+    <div class="clear"></div>
+  </main>
+</div>
+<!-- ################################################################################################ -->
+<!-- ################################################################################################ -->
+<!-- ################################################################################################ -->
+<div class="wrapper bgded" style="background-image:url('images/demo/backgrounds/03.jpg')">
+  <div class="overlay">
+    <div class="container clear"> 
+      <!-- ################################################################################################ -->
+      <h6 class="nospace font-x3 center btmspace-50">IT professionals never die...<a class="dk-blue" href="#">They jus go <i>OFFLINE</i></a></h6>
+      <div class="flexslider carousel">
+        <ul class="carousel-items center">
+          <li>
+            <blockquote>It's hard enough to find an error in your code,when you'r looking for it;its even harder when you've assumed your code is error free.</blockquote>
+            <figure><img class="circle btmspace-15" src="images/demo/steveMcConnell.jpg" alt="">
+              <figcaption><span class="bold">Steve McConnell</span><br>
+                <!--<em>Position, Company Name</em>--></figcaption>
+            </figure>
+          </li>
+          <li>
+            <blockquote>Measuring programming progress by lines of code is like measuring aircraft building progress by weight.</blockquote>
+            <figure><img class="circle btmspace-15" src="images/demo/billGates.jpg" alt="">
+              <figcaption><span class="bold">Bill Gates</span><br>
+                <!--<em>Position, Company Name</em>--></figcaption>
+            </figure>
+          </li>
+          <li>
+            <blockquote>Programming is the art of telling another human being what one wants the computer to do.
+            A programmer who viwes himself as an artist will do it better.</blockquote>
+            <figure><img class="circle btmspace-15" src="images/demo/donaldKnuth.jpg" alt="">
+              <figcaption><span class="bold">Donald Knuth</span><br>
+                <!--<em>Position, Company Name</em>--></figcaption>
+            </figure>
+          </li>
+        </ul>
+      </div>
+      <!-- ################################################################################################ -->
+    </div>
+  </div>
+</div>
+
+
+<!--Login -->
+<div class="popup" id="popup2" style="width:300px; height: 330px;
+border:1px solid #8096AA;position:absolute; ;top:250px;box-shadow: 1px 1px 10px #8096AA;background-color: white;padding:20px;"
+>
+  
+  <a href="#" onclick="hide('popup2')">&times;</a><br><br>
+  <div>
+  <label><b>Username</b></label>
+    <input type="text" placeholder="Enter Username" name="username" id="uname" required style="width: 250px;
+    height:30px;padding: 4px;box-shadow: 1px 1px 10px #8096AA;" form="form1" pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$">
+    <br>
+    <label><b>Password&nbsp;</b></label>
+    <input type="password" placeholder="Enter Password"  id ="pwd" required style="width: 250px;
+    height:30px;padding: 4px;box-shadow: 1px 1px 10px #8096AA;" form="form1" pattern=".{6,}" title="Min 6 characters required">
+    <br>
+    <button id="submit" type="submit" onclick="valid('login')">Login</button>
+    </div>
+    <br>
+  <div>
+    <span class="fpwd">
+    <a href="#" onclick="forgetpswd()" style="text-decoration: none;">Forgot password?</a>
+    </span>
+    
+  </div>
+</div>
+
+<!--Registration -->
+<div class="popup" id="popup3" style="width:410px; height: 480px;
+border:1px solid #8096AA;position:absolute; ;top:170px;box-shadow: 1px 1px 10px #8096AA;background-color: white;scroll-behavior: auto;padding: 30px;"
+>
+  
+  <a href="#" onclick="hide('popup3')">&times;</a><br><br>
+  <div>
+  <label><b>Firstname</b></label>
+    <input type="text" placeholder="Enter Firstname" name="firstname" id="fname" required style="width: 300px;
+    height:30px;padding: 4px;box-shadow: 1px 1px 10px #8096AA;"  pattern="[A-Z a-z].{2,}" title="three or more alphabets">
+    <br>
+    <label><b>Lastname&nbsp;</b></label>
+    <input type="text" placeholder="Enter Lastname" name="lastname" id="lname" required style="width: 300px;
+    height:30px;padding: 4px;box-shadow: 1px 1px 10px #8096AA;"  pattern="[A-Z a-z].{2,}" title="three or more alphabets">
+    <br>
+    <label><b>Email&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</b></label>
+    <input type="text" placeholder="Enter email" name="email" id="email" required style="width: 300px;
+    height:30px;padding: 4px;box-shadow: 1px 1px 10px #8096AA;"  pattern="[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,3}$">
+   <br>
+    <label><b>Password&nbsp;</b></label>
+    <input type="password" placeholder="Enter password" id="pwd1"  required style="width: 300px;
+    height:30px;padding: 4px;box-shadow: 1px 1px 10px #8096AA;"  pattern=".{6,}" title="Min 6 characters required">
+    <br><br>
+  <button id="submit2" type="submit" onclick="valid('register')">Submit</button>
+  </div>
+   
+
+</div>
+<div id="snackbar"></div>
+
+<!--Back to Top-->
+<a id="backtotop" href="#top"><i class="fa fa-chevron-up"></i></a>
+<!-- JAVASCRIPTS -->
+<script src="layout/scripts/jquery.min.js"></script>
+<script src="layout/scripts/jquery.backtotop.js"></script>
+<script src="layout/scripts/jquery.mobilemenu.js"></script>
+<script src="layout/scripts/jquery.flexslider-min.js"></script>
+</body>
+</html>

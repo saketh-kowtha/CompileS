@@ -1,0 +1,730 @@
+<html>
+<head>
+	<title>Online Compiler</title>
+	<link rel="stylesheet" type="text/css" href="pulgin\codemirror\lib\codemirror.css">
+  
+
+  	<script type="text/javascript" src="js/jquery-min.js"></script>
+	<script type="text/javascript" src="pulgin\codemirror\lib\codemirror.js"></script>
+
+  <script type="text/javascript" src="pulgin\codemirror\mode\clike\clike.js"></script>
+  <script type = "text/javascript" src = "pulgin\codemirror\mode\haskell\haskell.js"></script>
+  <script type="text/javascript" src="pulgin\codemirror\mode\javascript\javascript.js"></script>
+  <script type="text/javascript" src="pulgin\codemirror\mode\css\css.js"></script>
+  <script type="text/javascript" src="pulgin\codemirror\mode\htmlmixed\htmlmixed.js"></script>
+	<script type="text/javascript" src="pulgin\codemirror\mode\perl\perl.js"></script>
+  <script type="text/javascript" src="pulgin\codemirror\mode\ruby\ruby.js"></script>
+  <script type="text/javascript" src="pulgin\codemirror\mode\python\python.js"></script>
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<script>
+    if(!localStorage.getItem("username")){
+      window.location.href = "../index.html"
+  }
+  else{
+    var username = localStorage.getItem("username")
+  }
+</script>
+	<style>
+
+  html,body{
+    height 100%
+  }
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 20;
+    top: 0;
+    right: 0;
+    background-color:white;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 10px;
+}
+	
+	a{
+	color:#8096AA;
+	text-decoration: none;
+	padding: 16px;
+    font-size: 16px;
+	}
+	
+	/*Dropdown */
+	.dropbtn {
+    /*background-color: #4CAF50;*/
+    color:#8096AA;
+    padding: 16px;
+    font-size: 16px;
+    border: none;
+	}
+
+	.dropdown {
+    position: relative;
+    display: inline-block;
+	}
+
+	.dropdown-content {
+    display: none;
+    position:absolute;
+    background-color: #f4f4f4;
+    min-width: 160px;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+	    z-index: 1;
+	}
+
+	.dropdown-content a {
+    color:#8096AA ;
+    padding: 12px 16px;
+    text-decoration: none;
+    display: block;
+	}
+
+	.dropdown-content a:hover {background-color: #ddd}
+
+	.dropdown:hover .dropdown-content {
+    display: block;
+	}
+
+	/*Editor shadows*/
+	.CodeMirror{
+  	border: 1px  solid #8096AA;
+  	box-shadow: 1px 1px 5px  #8096AA;
+
+  	}
+
+  	.files{
+  	 box-shadow: 1px 1px 10px #8096AA;
+  	 font-style: oblique;
+  	 font-size: 18px;
+  	}
+
+    /* popups*/
+  	.popup {
+  display: none;
+  position: fixed;
+  padding: 10px;
+  width: 280px;
+  left: 50%;
+  margin-left: -150px;
+  height: 180px;
+  top: 50%;
+  margin-top: -100px;
+  z-index: 20;
+}
+
+
+
+#popup1::after,#popup2::after , #popup3::after ,#popup4::after{
+  position: fixed;
+  content: "";
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  background: rgba(0,0,0,0);
+  z-index: -2;
+}
+
+#cancel,#delete,#rename,#save,#upload {
+    background-color: #8096AA;
+    color: white;
+    border: none;
+    cursor: pointer;
+    width: 30%;
+    height:15%;
+    margin-left: 27px;
+    margin-top: 25px;
+
+}
+.fpwd
+{
+  margin-left: 125px;
+}
+
+.CodeMirror
+
+
+{
+  width: auto;
+  margin-right: 30px;
+  z-index: 10;
+}
+#output .CodeMirror
+{
+  background-color:#f4f4f4;
+  height: 48%;
+}
+#editor.CodeMirror
+{
+  height: 50%;
+}
+
+/*toast*/
+
+#snackbar {
+    visibility: hidden;
+    min-width: 300px;
+    margin-left: -125px;
+    background-color: #333;
+    color: #fff;
+    text-align: center;
+    border-radius: 20px;
+    padding: 16px;
+    position: fixed;
+    z-index: 1;
+    left: 50%;
+    bottom: 30px;
+    font-size: 17px;
+}
+
+#snackbar.show {
+    visibility: visible;
+    -webkit-animation: fadein 0.5s, fadeout 0.5s 2.5s;
+    animation: fadein 0.5s, fadeout 0.5s 2.5s;
+}
+
+-@-webkit-keyframes fadein {
+    from {bottom: 0; opacity: 0;} 
+    to {bottom: 30px; opacity: 1;}
+}
+
+@keyframes fadein {
+    from {bottom: 0; opacity: 0;}
+    to {bottom: 30px; opacity: 1;}
+}
+
+@-webkit-keyframes fadeout {
+    from {bottom: 30px; opacity: 1;} 
+    to {bottom: 0; opacity: 0;}
+}
+
+@keyframes fadeout {
+    from {bottom: 30px; opacity: 1;}
+    to {bottom: 0; opacity: 0;}
+}
+
+
+</style>
+
+<script>
+var url = "localhost"
+var http_port = ":5454"
+//editor
+$ = function(id) {
+  return document.getElementById(id);
+}
+
+//poup's
+var show = function(id) {
+	$(id).style.display ='block';
+}
+var hide = function(id) {
+	$(id).style.display ='none';
+}
+
+//share and toast 
+function share()
+{
+  var sharelink = "http://" + url + http_port +  "/backend/"+username+"/"+filename+extension
+  document.getElementById('snackbar').innerHTML=sharelink; 
+  console.log(sharelink)
+  myFunction()
+}
+function myFunction() {
+    var x = document.getElementById("snackbar")
+    x.className = "show";
+    setTimeout(function(){ x.className = x.className.replace("show", ""); }, 3000);
+}
+
+// download
+  function down() 
+  {
+  
+    var text = myCodeMirror.getValue();
+    var hiddenElement = document.createElement('a');
+    hiddenElement.href = 'data:attachment/text,' + encodeURI(text);
+    hiddenElement.target = '_blank';
+    hiddenElement.download = 'myFile.txt';
+    hiddenElement.click();
+  }
+  //Nav bars
+ function openNav() {
+    document.getElementById("mySidenav").style.width = "300px";
+  }
+
+  function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
+  }
+  function upload(){
+            var fileInput = document.getElementById('file');
+            var file = fileInput.files[0];
+            var ext = [".py",".c",".cpp",".pl",".rb",".hs",".java",".html",".php",".js",".css",".cs"]
+            var z = file.name.split(".")
+            if(z.length !=2 ){
+              document.getElementById("snackbar").innerHTML = "Invalid File name"
+              myFunction()
+            }
+            else{
+              console.log(ext,z,"."+z[1])
+              if(ext.indexOf("."+z[1]) != -1){
+                  var formData = new FormData();
+                  formData.append('filetoupload', file);
+                  formData.append('username',username)
+                  var x = new XMLHttpRequest()
+                  x.open("POST","http://" + url +  ":3000/file",true)
+                  x.send(formData)
+                  x.onreadystatechange = function(){
+                      console.log(this.responseText)
+                      myCodeMirror.setValue(this.responseText)
+                  }
+              }
+                else{
+                  document.getElementById("snackbar").innerHTML = "Invalid File"
+                  myFunction()
+                }
+        }
+      }
+  //clear screen
+  function clearC()
+  {
+  
+  myCodeMirror.getDoc().setValue('');
+  hide('popup1');
+  }
+
+function clearO()
+{
+  
+  myOutput.getDoc().setValue('');
+}
+
+</script>
+
+</head>
+
+
+<body >
+
+	<!--editor-->
+    
+
+<div id = "editor" style="font-size: 18px;"></div>
+<script type="text/javascript">
+
+// var username="Test"
+var filename="saketh"
+
+var extension = ""
+	var myCodeMirror = CodeMirror(document.getElementById("editor"), {
+	   value:"",
+     mode : "mode",
+     lineNumbers : true,
+  	  matchBrackets: true,
+  	  undoDepth : 10,
+  });
+
+
+  function setMode(mode,a){
+    myCodeMirror.setOption("mode",mode)
+       var mode_ext =  document.getElementById("extsn")
+    if(mode.indexOf("c") != -1 && a )
+    {
+      extension = ".c"
+      mode_ext.innerHTML = "C"
+    }
+    if(mode.indexOf("c++") != -1 && !a)
+
+    {
+      extension = ".cpp"
+      mode_ext.innerHTML = "CPP"
+    }
+    if(mode.indexOf("sql") != -1)
+    {
+      extension = ".mysql"
+      mode_ext.innerHTML = "MYSQL"
+    }
+    if(mode.indexOf("java") != -1)
+    {
+      extension = ".java"
+      mode_ext.innerHTML = "JAVA"
+    }
+    if(mode.indexOf("csharp") != -1)
+    {
+      extension = ".cs"
+      mode_ext.innerHTML = "C#"
+    }
+    if(mode.indexOf("haskell") != -1)
+    {
+      extension = ".hs"
+      mode_ext.innerHTML = "HASKELL"
+    }
+    if(mode.indexOf("python") != -1)
+    {
+      extension = ".py"
+      mode_ext.innerHTML = "PYTHON"
+    }
+    if(mode.indexOf("perl") != -1)
+    {
+      extension = ".pl"
+      mode_ext.innerHTML = "perl"
+    }
+    if(mode.indexOf("ruby") != -1)
+    {
+      extension = ".rb"
+      mode_ext.innerHTML = "RUBY"
+    }
+        if(mode.indexOf("javascript") != -1)
+    {
+      extension = ".js"
+      mode_ext.innerHTML = "JAVASCRIPT"
+    }
+    if(mode.indexOf("httpd") != -1)
+    {
+      extension = ".php"
+      mode_ext.innerHTML = "PHP"
+    }
+  }
+	</script>
+
+
+	!!Input/Output Here!!
+	<!--Output Screen # no edit access # Only display-->
+
+	<div id = "output">
+	<script type="text/javascript">
+	var myOutput = CodeMirror(document.getElementById("output"), {
+	  value:""
+	  //readOnly:'nocursor'
+     });
+
+     function iterate(obj) {
+    var walked = [];
+    data = ""
+    var stack = [{obj: obj, stack: ''}];
+    while(stack.length > 0)
+    {
+        var item = stack.pop();
+        var obj = item.obj;
+        for (var property in obj) {
+            if (obj.hasOwnProperty(property)) {
+                if (typeof obj[property] == "object") {
+                  var alreadyFound = false;
+                  for(var i = 0; i < walked.length; i++)
+                  {
+                    if (walked[i] === obj[property])
+                    {
+                      alreadyFound = true;
+                      break;
+                    }
+                  }
+                  if (!alreadyFound)
+                  {
+                    walked.push(obj[property]);
+                    stack.push({obj: obj[property], stack: item.stack + ' : ' + property});
+                  }
+                }
+                else
+                {
+                    data += "\n" + (item.stack + '.' + property + "=" + obj[property]);
+                }
+            }
+        }
+    }
+    return data
+}
+
+     function logout(){
+       localStorage.clear()
+       window.location.reload()
+     }
+     function ajax() {
+        console.log("ok")
+                var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+              console.log(this.responseText)
+              if(extension == ".mysql"){
+                myOutput.setValue(myOutput.getValue()+"\n ---- OUTPUT ----\n" + iterate(JSON.parse(this.responseText).op)+ JSON.parse(this.responseText).error)
+
+                }
+                else
+                    myOutput.setValue(myOutput.getValue()+"\n ---- OUTPUT ----\n" +JSON.parse(this.responseText).op + JSON.parse(this.responseText).error+"\nExecution time :" + JSON.parse(this.responseText).exeTime + "\nMemory : " + JSON.parse(this.responseText).size)
+              }
+          }
+
+                /*sending content*/
+                xhttp.open("POST", "http://" + url + ":3000/compiler", true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                var x = "file=saketh" +"&code="+ 
+                encodeURIComponent(myCodeMirror.getValue()) +"&username=" +username + "&timeout=10" + "&input="+ encodeURIComponent(myOutput.getValue()) + "&size=150"  +"&extension="+extension;
+                if( myCodeMirror.getValue().length==0){
+                  document.getElementById("snackbar").innerHTML="Enter the program"
+                  myFunction()
+                }
+                  else if(myCodeMirror.getValue().length > 0){
+                                  xhttp.send(x);
+
+                }
+
+                if(extension.length < 2){
+                  document.getElementById("snackbar").innerHTML="select Extension"
+                  myFunction()
+
+                }
+                else if(extension > 2){
+                                  xhttp.send(x);
+
+                }
+    }
+                
+               
+
+
+
+	//myOutput.setSize(1300,190);
+</script>
+</div>
+
+
+
+<!-- side Nav-->
+
+  <span style="font-size:30px;cursor:pointer;top:0px;right:8px;position:absolute;" onclick="openNav()">&#9776;</span>
+
+<div id="mySidenav" class="sidenav">
+  <div align="right">
+  <a href="javascript:void(0)" class="closebtn" onclick="closeNav()">&times;</a></div>
+  <br>
+
+  <div class="dropdown">
+  <div class="dropbtn">Language</div>
+  <div class="dropdown-content" id="hii">
+   <a   href ="#" onclick="setMode('text/x-c++src',true)">C</a>
+  <a   href ="#" onclick="setMode('text/x-c++src')">C++</a>
+  <a   href ="#" onclick = "setMode('text/x-csharp')">C#</a>
+  <a   href ="#" onclick="setMode('text/x-java')">Java</a>
+  <a   href ="#" onclick = "setMode('haskell')">Haskel</a>
+  <a   href ="html-new.html" target="_blank">HTML</a>
+  <a   href ="#" onclick = "setMode('javascript')" >Javascript</a>
+  <a   href ="#" onclick = "setMode('application/x-httpd-php')">php</a>
+  <a   href ="#" onclick = "setMode('x-perl')">Perl</a>
+  <a   href ="#" onclick = "setMode('x-ruby')">Ruby</a>
+  <a   href ="#" onclick = "setMode('python')">Python</a>
+  <a   href ="#" onclick = "setMode('mysql')">SQL</a>
+
+  </div>
+  </div>
+  
+  
+ 
+  <div class="dropdown">
+  <div class="dropbtn">File</div>
+  <div class="dropdown-content">
+    <a href ="#"  onclick="share()">Share File</a>
+    <a href="#" onclick="show('popup4')" >Upload File</a>
+    <a href="#" onclick="show('popup5')" >Upload File From Git</a>
+    <a href="#" onclick="show('popup6')">Upload Gist</a>
+    <a href="#" onclick = "down()">Download File</a>
+    <a href="#" onclick="show('popup1')">Delete File</a>
+   </div>
+  </div>
+
+  <a onclick = "logout()" target="_self">Home</a>
+  <a href="..\help.html" target="_self">Help</a>
+  <a href="#" onclick = "ajax()">Execute</a>
+  <a href="#" onclick = "clearO()">Clear</a>
+
+ <div id="snackbar"></div>
+
+ 
+  <br><br>
+
+    <div class ="files" style="width:80% ;height:70%;border:1px solid #8096AA;
+    background-color: #f4f4f4; top :auto; position:absolute;
+     right: 30px ; color: #445666 ; overflow: auto;">
+
+    <br>
+ 
+    <div id="mode" style="margin-left: 10px;">
+    mode:<span id="extsn"></span>
+    </div>
+
+    <br>
+
+    <script>
+      var syntax = {
+        ".cpp" : [{
+            title : "exit",
+            description : "exit the program",
+            example : "exit()"
+        },
+        {
+            title : "printf()",
+            description : "prints the ",
+            example : "printf(\"%d\")"        
+        },
+        {
+            title : "toUpper()",
+            description : "converts to upper case",
+            example : "toUpper(var)"     
+        }],
+        ".java" : [
+          {
+            title : "Integer",
+            description : "Integer Class",
+            example : "new Integer()"        
+          },
+          {
+            title : "String",
+            description : "Integer Class",
+            example : "new String()"        
+          }],
+          ".py" : [{
+            title : "len",
+            description : "returns the length of the object",
+            example : "len(x)"
+          },
+          {
+            title : "input",
+            description : "takes the input",
+            example : "input()"
+          }]
+    }
+function stroke() {
+  console.log(extension)
+    var content = ""
+    var input = document.getElementById("myInput").value
+    if(input.length != 0)
+    {
+        syntax[extension].map(function(data){
+            if((data.title.toLocaleLowerCase()).indexOf(input.toLocaleLowerCase()) != -1){
+                console.log(data)
+                content += "<div style='padding:15px;'><label style = 'font-size : 16px;'>" + "<h2>"+data.title + "</h2>"+
+                "</label><h4>Description:</h4>" 
+                + data.description + 
+                "<h4>Example</h4>" + data.example + 
+                "</div>"
+            }
+        })
+    }
+    else{
+        console.log("0")
+    }
+    document.getElementById("suggestions").innerHTML = content
+}
+function gisturl(){
+  var giturl1 = document.getElementById("gisturl").value
+
+  var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+              console.log(this.responseText)
+
+
+                myCodeMirror.setValue(JSON.parse(this.responseText).code)
+
+                    }
+                };
+
+                xhttp.open("POST", "http://" + url + ":3000/git", true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                var fileName = giturl1.split("/")
+                fileName = fileName[ fileName.length - 1 ]
+                console.log(giturl1)
+                xhttp.send("url="+giturl1)
+}
+function giturl(){
+  var giturl = document.getElementById("giturl").value
+  giturl = giturl.replace("github","raw.githubusercontent")
+  giturl = giturl.replace("/blob","")
+
+  var xhttp = new XMLHttpRequest();
+                xhttp.onreadystatechange = function() {
+                    if (this.readyState == 4 && this.status == 200) {
+              console.log(this.responseText)
+
+
+                myCodeMirror.setValue(JSON.parse(this.responseText).code)
+
+                    }
+                };
+
+                xhttp.open("POST", "http://" + url + ":3000/git", true);
+                xhttp.setRequestHeader("Content-type", "application/x-www-form-urlencoded");
+                var fileName = giturl.split("/")
+                fileName = fileName[ fileName.length - 1 ]
+                console.log(giturl)
+                xhttp.send("url="+giturl)
+}
+</script>
+
+   <input type="text" name="search" id="myInput" onkeyup="stroke()" placeholder="Search here" style="margin-left: 10px; border-radius: 20px;
+    border: 2px solid #8096AA;
+    width: 180px;
+    height: 30px;">
+    <div id="suggestions"></div>
+
+  </div>
+  </div>
+
+
+<!--File popups-->
+
+<div class="popup" id="popup1" style="width:250px; height: 150px;
+border:1px solid #8096AA ;top:150px;left:50%;box-shadow: 1px 1px 10px #8096AA;background-color: white;">
+  <a href="#" onclick="hide('popup1');">&times;</a><br><br>
+  <p>&nbsp;&nbsp;&nbsp;Are you sure to delete this item?</p>
+  <button id="delete" onclick="clearC()">Delete</button>
+  <button id="cancel" onclick="hide('popup1')">Cancel</button>
+  </div>
+ 
+<div class="popup" id="popup2" style="width:250px; height: 150px;
+border:1px solid #8096AA; top:150px;left:50%;box-shadow: 1px 1px 10px #8096AA;background-color: white;">
+  <a href="#" onclick="hide('popup2')">&times;</a><br><br>
+  <p>&nbsp;&nbsp;&nbsp;Are you sure to download this item?</p>
+  <button id="delete">Download</button>
+  <button id="cancel" onclick="hide('popup2')">Cancel</button>
+  </div>
+
+<div class="popup" id="popup4" style="width:210px; height: 180px;
+border:1px solid #8096AA;top:150px;left:50%;box-shadow: 1px 1px 10px #8096AA;background-color: white;">
+<a href="#" onclick="hide('popup4')">&times;</a><br><br>
+ <p style="padding: 5px;">Upload from PC</p>
+ 
+
+ <input type="file" id ="file" name="filetoupload" />
+ <button id="upload" onclick="upload()">upload</button>
+<span id = "status" style="display : none"></span>
+  <button id="cancel" onclick="hide('popup4')">Cancel</button> 
+  
+</div>
+
+<div class="popup" id="popup5" style="width:210px; height: 180px;
+border:1px solid #8096AA;top:150px;left:50%;box-shadow: 1px 1px 10px #8096AA;background-color: white;">
+<a href="#" onclick="hide('popup5')">&times;</a><br><br>
+ <p style="padding: 5px;">Upload from GitHub</p>
+ 
+
+ <input type="text" id ="giturl"  />
+ <button onclick="giturl()">Get</button>
+<span id = "status" style="display : none"></span>
+  <button id="cancel" onclick="hide('popup4')">Cancel</button> 
+  
+</div>
+<div class="popup" id="popup6" style="width:210px; height: 180px;
+border:1px solid #8096AA;top:150px;left:50%;box-shadow: 1px 1px 10px #8096AA;background-color: white;">
+<a href="#" onclick="hide('popup6')">&times;</a><br><br>
+ <p style="padding: 5px;">Upload from Gist</p>
+ 
+
+ <input type="text" id ="gisturl"  />
+ <button onclick="gisturl()">Get</button>
+<span id = "status" style="display : none"></span>
+  <button id="cancel" onclick="hide('popup6')">Cancel</button> 
+  
+</div>
+</body>
+</html>
+
+

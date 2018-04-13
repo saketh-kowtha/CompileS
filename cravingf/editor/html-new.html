@@ -1,0 +1,101 @@
+<html>
+<head>
+	<title>codeMirror</title>
+	<link rel="stylesheet" type="text/css" href="pulgin\codemirror\lib\codemirror.css">
+  	<script type="text/javascript" src="js/jquery-min.js"></script>
+	<script type="text/javascript" src="pulgin\codemirror\lib\codemirror.js"></script>
+
+ 
+  <script type="text/javascript" src="pulgin\codemirror\mode\htmlmixed\htmlmixed.js"></script>
+  
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+
+
+	<style>
+  html,body{
+    height 100%
+  }
+
+
+	/*Editor shadows*/
+	.CodeMirror{
+  	border: 1px  solid #8096AA;
+  	box-shadow: 1px 1px 5px  #8096AA;
+  	}
+
+.CodeMirror
+{
+  width: auto;
+  margin-right: 30px;
+  z-index: 10;
+}
+#output .CodeMirror
+{
+  background-color:#f4f4f4;
+  height: 48%;
+}
+#editor.CodeMirror
+{
+  height: 50%;
+}
+</style>
+
+<script>
+$ = function(id) {
+  return document.getElementById(id);
+}
+
+function call()
+    {
+      
+    var text = myCodeMirror.getValue();
+    alert(text);
+    document.getElementById("output").innerHTML = text;
+    }
+</script>
+</head>
+
+<body >
+
+	<!--editor-->
+    
+
+     <div id = "editor">
+	<script type="text/javascript">
+
+	var myCodeMirror = CodeMirror(document.getElementById("editor"), {
+	   value:"",
+     mode : "mode",
+     lineNumbers : true,
+  	  matchBrackets: true,
+  	  undoDepth : 10,
+  	   });
+  </script></div>
+<br>
+<button onclick="call()" style="position: absolute;left:10px;
+    background-color: #8096AA;
+    color: white;
+    border: none;
+    cursor: pointer;
+    width:10%;
+    height:6%;">submit </button>
+<br><br><br>
+	!!Input/Output Here!!
+	<!--Output Screen # no edit access # Only display-->
+
+	<div id = "output">
+    
+  </div>
+	
+     
+	</script>
+  
+  </body>
+  </html>
+	
+
+ 
+
+  
+
+

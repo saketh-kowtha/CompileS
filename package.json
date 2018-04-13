@@ -1,0 +1,33 @@
+{
+  "name": "college",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "echo 'We are happy to see you' & node backend/index & hs -p 5454 & mongod"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "child_process": "^1.0.2",
+    "cors": "^2.8.4",
+    "ejs": "^2.5.7",
+    "express": "^4.16.2",
+    "find-process": "^1.1.0",
+    "formidable": "^1.2.0",
+    "fs": "0.0.1-security",
+    "github-api": "^3.0.0",
+    "http": "0.0.0",
+    "https": "^1.0.0",
+    "mongodb": "^3.0.1",
+    "mysql": "^2.15.0",
+    "nodemailer": "^4.4.2",
+    "nodemon": "^1.14.11",
+    "opn": "^5.3.0",
+    "os": "^0.1.1",
+    "pm2": "^2.9.3",
+    "quick-gist": "^1.4.0",
+    "request": "^2.85.0",
+    "rmdir": "^1.2.0"
+  }
+}
