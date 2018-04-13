@@ -1,12 +1,12 @@
 {
-  "name": "college",
+  "name": "CompileS",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "start": "echo 'We are happy to see you' & node backend/index & hs -p 5454 & mongod"
   },
-  "author": "",
+  "author": "Saketh",
   "license": "ISC",
   "dependencies": {
     "child_process": "^1.0.2",
