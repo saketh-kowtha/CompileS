@@ -15,4 +15,4 @@ Devoleped by [Kowtha Saketh](http://kowthasaketh.com/) and Swathi Sree
 *   Change Database name and Collection name in backend/index.js
 *   If you changed first server port please change it in index.js Line no 14
 
-### Note : **It is under development still some work is under progress** 
+## Note : **It is under development still some work is under progress** 
